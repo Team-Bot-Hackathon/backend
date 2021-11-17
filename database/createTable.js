@@ -58,6 +58,7 @@ module.exports = () => {
               );`, function(err,result) {
                 if(err) throw err;
             });
+            con.release();
         }
     })
 }

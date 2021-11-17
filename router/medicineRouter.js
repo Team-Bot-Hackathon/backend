@@ -20,6 +20,7 @@ function addMedicine(con,res,medicine_id,pharmacy_id,quantity){
                     res.send({"action":true});
                 }
             })
+            con.release();
         }else{
             present_quantity = result[0].quantity;
             con.query(`UPDATE medicine_stock SET quantity=${present_quantity+quantity} WHERE pharmacy_id=${pharmacy_id} AND medicine_id=${medicine_id}`,(err,results1) => {
@@ -28,6 +29,7 @@ function addMedicine(con,res,medicine_id,pharmacy_id,quantity){
                     res.send({"action":true});
                 }               
             })
+            con.release();
         }
     })
 }

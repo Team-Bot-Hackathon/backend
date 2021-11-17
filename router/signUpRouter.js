@@ -36,6 +36,7 @@ signUpRouter.route("/user")
                                                 "type": "pharmacy",
                                                 "token": token
                                             });
+                                            con.release();
                                         }
                                     })
                                 }
@@ -79,6 +80,7 @@ signUpRouter.route('/pharmacy')
                                                 "type": "pharmacy",
                                                 "token": token
                                             });
+                                            con.release();
                                         }
                                     })
                                 }

@@ -42,6 +42,7 @@ signInRouter.route("/user")
                                                     "type": "user",
                                                     "token": token
                                                 });
+                                                con.release();
                                             }
                                         })
                                     }else{
@@ -51,6 +52,7 @@ signInRouter.route("/user")
                                             "token": "",
                                             "err": "Invalid Credentails"
                                         });
+                                        con.release();
                                     }
                                 }
                             })
