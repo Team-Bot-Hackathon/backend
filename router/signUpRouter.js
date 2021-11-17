@@ -33,6 +33,7 @@ signUpRouter.route("/user")
                                         else{
                                             res.send({
                                                 "signedUp": true,
+                                                "type": "pharmacy",
                                                 "token": token
                                             });
                                         }
@@ -64,15 +65,18 @@ signUpRouter.route('/pharmacy')
                     connection.getConnection((err,con) => {
                         if(err) res.send(err);
                         else{
-                            con.query(`INSERT INTO user(\`user_name\`,\`password\`) VALUES('${user_name}','${hash}')`,(err,result) => {
+                            con.query(`INSERT INTO pharmacy
+                                        (\`name\`,\`address\`,\`contact_no\`,\`lat\`,\`lon\`,\`user_name\`,\`password\`)
+                                        VALUES('${name}','${address}',${contact_no},${lat},${lon},'${user_name}','${hash}');`,(err,result) => {
                                 if(err) res.send(err);
                                 else{
-                                    user_id = result.insertId;
-                                    jwt.sign({user_id: user_id}, process.env.KEY,{expiresIn: '1d'},(err,token) => {
+                                    pharmacy_id = result.insertId;
+                                    jwt.sign({pharmacy_id: pharmacy_id}, process.env.KEY,{expiresIn: '1d'},(err,token) => {
                                         if(err) res.send(err)
                                         else{
                                             res.send({
                                                 "signedUp": true,
+                                                "type": "pharmacy",
                                                 "token": token
                                             });
                                         }
