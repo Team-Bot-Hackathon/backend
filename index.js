@@ -1,6 +1,7 @@
 const express = require('express');
 const morgan = require('morgan');
 var cors = require('cors');
+const createTable = require('./database/createTable');
 
 const hostname = 'localhost';
 const port = 3000
@@ -16,6 +17,7 @@ app.get('/', function (req, res) {
 })
  
 app.listen(process.env.PORT || port, () => {
+    createTable();
     console.log(`Server running at http://${hostname}:${port}/`);
   });
   
