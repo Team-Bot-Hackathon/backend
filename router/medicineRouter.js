@@ -1,15 +1,11 @@
 const express = require('express');
 const connection = require('../database/connection');
 const bodyParser = require('body-parser');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
 const auth = require('../middleware/auth');
 require('dotenv').config();
 
 const medicineRouter = express.Router();
 medicineRouter.use(bodyParser.json());
-
-const saltRounds = 10;
 
 function addMedicine(con,res,medicine_id,pharmacy_id,quantity){
     con.query(`SELECT * FROM medicine_stock WHERE medicine_id=${medicine_id} AND pharmacy_id=${pharmacy_id}`,(err,result) => {
@@ -36,7 +32,17 @@ function addMedicine(con,res,medicine_id,pharmacy_id,quantity){
 
 medicineRouter.route("/")
     .get((req,res) => {
-
+        connection.getConnection((err,con) => {
+            if(err) res.send(err);
+            else{
+                con.query(`SELECT * FROM medicine`,(err,result) => {
+                    if(err) res.send(err);
+                    else{
+                        res.send({data: result});
+                    }
+                })
+            }
+        })
     });
 
 
