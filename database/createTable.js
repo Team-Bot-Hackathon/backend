@@ -10,7 +10,7 @@ module.exports = () => {
             con.query(`CREATE TABLE IF NOT EXISTS user(
                 user_id INT NOT NULL UNIQUE AUTO_INCREMENT,
                 user_name VARCHAR(45) NOT NULL UNIQUE,
-                password VARCHAR(45) NOT NULL UNIQUE,
+                password VARCHAR(500) NOT NULL,
                 CONSTRAINT user_id_pk PRIMARY KEY (user_id)
               );`, function(err,result) {
                 if(err) throw err;
@@ -24,16 +24,9 @@ module.exports = () => {
                 contact_no VARCHAR(100) NOT NULL,
                 lat DOUBLE NOT NULL,
                 lon DOUBLE NOT NULL,
-                CONSTRAINT pharmacy_id_pk PRIMARY KEY (pharmacy_id) 
-              );`, function(err,result) {
-                if(err) throw err;
-            });
-
-            con.query(`CREATE TABLE IF NOT EXISTS user(
-                user_id INT NOT NULL UNIQUE AUTO_INCREMENT,
                 user_name VARCHAR(45) NOT NULL UNIQUE,
-                password VARCHAR(45) NOT NULL UNIQUE,
-                CONSTRAINT user_id_pk PRIMARY KEY (user_id)
+                password VARCHAR(500) NOT NULL,
+                CONSTRAINT pharmacy_id_pk PRIMARY KEY (pharmacy_id) 
               );`, function(err,result) {
                 if(err) throw err;
             });
