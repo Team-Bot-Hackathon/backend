@@ -33,7 +33,7 @@ module.exports = () => {
             
             con.query(`CREATE TABLE IF NOT EXISTS medicine(
                 medicine_id INT NOT NULL UNIQUE AUTO_INCREMENT,
-                name VARCHAR(100) NOT NULL,
+                name VARCHAR(100) NOT NULL UNIQUE,
                 CONSTRAINT medicine_id_pk PRIMARY KEY (medicine_id) 
               );`, function(err,result) {
                 if(err) throw err;
