@@ -81,8 +81,34 @@ medicineRouter.route("/add")
     });
 
 medicineRouter.route('/update')
-    .post((req,res) => {
-        
+    .post(auth, async(req,res) => {
+        pharmacy_id = req.decoded_value.pharmacy_id;
+        medicine_name = req.body.name;
+        quantity = req.body.quantity;
+        connection.getConnection((err,con) => {
+            if(err) res.send(err);
+            else{
+                con.query(`SELECT * FROM medicine WHERE name='${medicine_name}'`,(err,result) => {
+                    if(!result[0]){
+                        res.send({
+                            "action":false,
+                            "err": "Invalid Medicine Name"
+                        });
+                    }
+                    medicine_id = result[0].medicine_id;
+                    con.query(`UPDATE medicine_stock
+                               SET \`quantity\` = ${quantity}
+                               WHERE medicine_id=${medicine_id} AND pharmacy_id=${pharmacy_id};`,(err,result) => {
+                                   if(err) res.send(err);
+                                   else{
+                                       res.send({
+                                           "action": true
+                                       })
+                                   }
+                    })
+                })
+            }
+        })
     });
 
 module.exports=medicineRouter;
