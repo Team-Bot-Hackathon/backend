@@ -85,6 +85,9 @@ medicineRouter.route('/update')
         pharmacy_id = req.decoded_value.pharmacy_id;
         medicine_name = req.body.name;
         quantity = req.body.quantity;
+        if(!pharmacy_id){
+            res.status(401).send({"action":false})
+        }
         connection.getConnection((err,con) => {
             if(err) res.send(err);
             else{
@@ -106,6 +109,26 @@ medicineRouter.route('/update')
                                        })
                                    }
                     })
+                })
+            }
+        })
+    });
+
+
+medicineRouter.route('/list')
+    .get(auth, async(req,res) => {
+        pharmacy_id = req.decoded_value.pharmacy_id;
+        if(!pharmacy_id){
+            res.status(401).send({"action":false})
+        }
+        connection.getConnection((err,con) => {
+            if(err) res.send(err);
+            else{
+                con.query(`SELECT * FROM medicine_stock INNER JOIN medicine ON medicine_stock.medicine_id = medicine.medicine_id WHERE pharmacy_id=${pharmacy_id}`,(err,result) => {
+                    if(err) res.send(err);
+                    else{
+                        res.send({data: result});
+                    }                    
                 })
             }
         })

@@ -33,7 +33,7 @@ signUpRouter.route("/user")
                                         else{
                                             res.send({
                                                 "signedUp": true,
-                                                "type": "pharmacy",
+                                                "type": "user",
                                                 "token": token
                                             });
                                             con.release();
