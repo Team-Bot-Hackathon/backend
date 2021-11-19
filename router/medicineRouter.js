@@ -51,9 +51,9 @@ medicineRouter.route("/")
 
 medicineRouter.route("/add")
     .post(auth,async (req,res) => {
-        pharmacy_id = req.decoded_value.pharmacy_id;
+        pharmacy_id = +req.decoded_value.pharmacy_id;
         medicine_name = req.body.name;
-        quantity = req.body.quantity;
+        quantity = +req.body.quantity;
         if(!pharmacy_id){
             res.status(401).send({"action":false})
         }
@@ -61,19 +61,19 @@ medicineRouter.route("/add")
             connection.getConnection((err,con) => {
                 if(err) res.send(err);
                 else{
-                    con.query(`SELECT * FROM medicine WHERE name='${medicine_name}'`,(err,graph_edge_result) => {
+                    con.query(`SELECT * FROM medicine WHERE name='${medicine_name}'`,(err,result) => {
                         if(err) res.send(err);
                         else{
-                            if(!graph_edge_result[0]){
-                                con.query(`INSERT INTO medicine(\`name\`) VALUES('${medicine_name}')`,(err,graph_edge_result) => {
+                            if(!result[0]){
+                                con.query(`INSERT INTO medicine(\`name\`) VALUES('${medicine_name}')`,(err,result) => {
                                     if(err) res.send(err);
                                     else{
-                                        medicine_id = graph_edge_result.insertId;
+                                        medicine_id = result.insertId;
                                         addMedicine(con,res,medicine_id,pharmacy_id,quantity);
                                     }
                                 })
                             }else{
-                                medicine_id = graph_edge_result[0].medicine_id;
+                                medicine_id = result[0].medicine_id;
                                 addMedicine(con,res,medicine_id,pharmacy_id,quantity);
                             }
                         }
@@ -94,17 +94,17 @@ medicineRouter.route('/update')
         connection.getConnection((err,con) => {
             if(err) res.send(err);
             else{
-                con.query(`SELECT * FROM medicine WHERE name='${medicine_name}'`,(err,graph_edge_result) => {
-                    if(!graph_edge_result[0]){
+                con.query(`SELECT * FROM medicine WHERE name='${medicine_name}'`,(err,result) => {
+                    if(!result[0]){
                         res.send({
                             "action":false,
                             "err": "Invalid Medicine Name"
                         });
                     }
-                    medicine_id = graph_edge_result[0].medicine_id;
+                    medicine_id = result[0].medicine_id;
                     con.query(`UPDATE medicine_stock
                                SET \`quantity\` = ${quantity}
-                               WHERE medicine_id=${medicine_id} AND pharmacy_id=${pharmacy_id};`,(err,graph_edge_result) => {
+                               WHERE medicine_id=${medicine_id} AND pharmacy_id=${pharmacy_id};`,(err,result1) => {
                                    if(err) res.send(err);
                                    else{
                                        res.send({
@@ -127,10 +127,10 @@ medicineRouter.route('/list')
         connection.getConnection((err,con) => {
             if(err) res.send(err);
             else{
-                con.query(`SELECT * FROM medicine_stock INNER JOIN medicine ON medicine_stock.medicine_id = medicine.medicine_id WHERE pharmacy_id=${pharmacy_id}`,(err,graph_edge_result) => {
+                con.query(`SELECT * FROM medicine_stock INNER JOIN medicine ON medicine_stock.medicine_id = medicine.medicine_id WHERE pharmacy_id=${pharmacy_id}`,(err,result) => {
                     if(err) res.send(err);
                     else{
-                        res.send({data: graph_edge_result});
+                        res.send({data: result});
                     }                    
                 })
             }
