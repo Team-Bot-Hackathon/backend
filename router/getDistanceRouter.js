@@ -15,7 +15,6 @@ getDistanceRouter.route("/")
         lat2 = req.body.lat2;
         lon1 = req.body.lon1;
         lon2 = req.body.lon2;
-        
         var options = {
             'method': 'POST',
             'url': 'http://www.mapquestapi.com/directions/v2/route?key='+process.env.API_KEY,
