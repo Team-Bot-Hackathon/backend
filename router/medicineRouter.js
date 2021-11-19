@@ -149,10 +149,10 @@ medicineRouter.route('/find')
                 con.query(`SELECT * FROM pharmacy_graph WHERE vertex_1 IN (SELECT pharmacy_id FROM medicine_stock WHERE medicine_id = ${medicine_id}) AND vertex_2 IN (SELECT pharmacy_id FROM medicine_stock WHERE medicine_id = ${medicine_id})`,(err,graph_edge_result) => {
                     if(!graph_edge_result){
                     }else{
-                        con.query(`SELECT pharmacy_id, lat, lon, SQRT(
+                        con.query(`SELECT pharmacy.pharmacy_id, lat, lon,medicine_id, SQRT(
                             POW(69.1 * (lat - ${lat}), 2) +
                             POW(69.1 * (${lon} - lon) * COS(lat / 57.3), 2)) AS distance
-                            FROM pharmacy WHERE pharmacy_id IN (SELECT pharmacy_id FROM medicine_stock WHERE medicine_id = 6) ORDER BY distance LIMIT 1;`,(err,closest_pharmacy_data) => {
+                            FROM pharmacy INNER JOIN medicine_stock ON medicine_stock.pharmacy_id=pharmacy.pharmacy_id WHERE pharmacy.pharmacy_id IN (SELECT pharmacy_id FROM medicine_stock WHERE medicine_id = 6) AND medicine_id = ${medicine_id} ORDER BY distance LIMIT 1;`,(err,closest_pharmacy_data) => {
                             if(err) res.send(err);
                             else{
                                 closest_pharmacy = closest_pharmacy_data[0].pharmacy_id;
@@ -161,11 +161,14 @@ medicineRouter.route('/find')
                                     if(err) res.send(err);
                                     else{
                                         if(!graph_edge_result){
+                                            res.send({action:false,err:"Medicine Not Available"});
                                         }else{
-                                            required_index = pharmacy_shop_id_result.findIndex(item => item.pharmacy_id === closest_pharmacy);
-                                            value_at_0_index = pharmacy_shop_id_result[0];
-                                            pharmacy_shop_id_result[0] = pharmacy_shop_id_result[required_index];
-                                            pharmacy_shop_id_result[required_index] = value_at_0_index;
+                                            if(pharmacy_shop_id_result.length > 1){
+                                                required_index = pharmacy_shop_id_result.findIndex(item => item.pharmacy_id === closest_pharmacy);
+                                                value_at_0_index = pharmacy_shop_id_result[0];
+                                                pharmacy_shop_id_result[0] = pharmacy_shop_id_result[required_index];
+                                                pharmacy_shop_id_result[required_index] = value_at_0_index;
+                                            }
                                             console.log(pharmacy_shop_id_result);
                                             vertex_matrix = Array(pharmacy_shop_id_result.length).fill(null).map(() => Array(pharmacy_shop_id_result.length).fill(0));
                                             for(var i=0;i<graph_edge_result.length;i++){
