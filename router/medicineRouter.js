@@ -196,7 +196,6 @@ medicineRouter.route('/find')
                                                                            path: path_of_vertex,
                                                                        }
                                                                        res.send(payload);
-                                                                        console.log(path_of_vertex,edges_of_vertex,pharmacy_shop_with_medicine);
                                                                    }
                                                                })
                                                 }
@@ -206,7 +205,6 @@ medicineRouter.route('/find')
                                 });
                             }
                         })
-                        console.log(graph_edge_result);
                         // var spanningTree = MST.kruskal(graph_edge_result);
                         // res.send(spanningTree);
                         // con.query(`SELECT pharmacy_id, lat, lon, SQRT(

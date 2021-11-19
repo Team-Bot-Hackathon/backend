@@ -7,6 +7,7 @@ const createTable = require('./database/createTable');
 const signUpRouter = require('./router/signUpRouter');
 const signInRouter = require('./router/signInRouter');
 const medicineRouter = require('./router/medicineRouter');
+const getDistanceRouter = require('./router/getDistanceRouter');
 
 const hostname = 'localhost';
 const port = 3000
@@ -18,6 +19,7 @@ app.use(cors());
 app.use('/signUp',signUpRouter)
 app.use('/signIn',signInRouter)
 app.use('/medicine',medicineRouter)
+app.use('/getDistance',getDistanceRouter)
 
 app.get('/', function (req, res) {
     res.send({
