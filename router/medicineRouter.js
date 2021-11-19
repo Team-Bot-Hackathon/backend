@@ -3,6 +3,7 @@ const connection = require('../database/connection');
 const bodyParser = require('body-parser');
 const auth = require('../middleware/auth');
 const MST = require('../MST/kruskal');
+var solver = require('node-tspsolver');
 
 require('dotenv').config();
 
@@ -139,53 +140,56 @@ medicineRouter.route('/list')
 medicineRouter.route('/find')
     .post((req,res) => {
         medicine_id = req.body.medicine_id;
-        edges = [
-            {
-                "vertex_1": 3,
-                "vertex_2": 1,
-                "weight": 67.55998749033873
-            },
-            {
-                "vertex_1": 4,
-                "vertex_2": 1,
-                "weight": 138.2
-            },
-            {
-                "vertex_1": 4,
-                "vertex_2": 3,
-                "weight": 153.82974975502862
-            },
-            {
-                "vertex_1": 5,
-                "vertex_2": 4,
-                "weight": 59.88701984392363
-            },
-            {
-                "vertex_1": 5,
-                "vertex_2": 1,
-                "weight": 196.80605216412744
-            },
-            {
-                "vertex_1": 5,
-                "vertex_2": 3,
-                "weight": 212.8503909284398
+        lat  = req.body.lat;
+        lon = req.body.lon;
+        connection.getConnection((err,con) => {
+            if(err) res.send(err);
+            else{
+                con.query(`SELECT * FROM pharmacy_graph WHERE vertex_1 IN (SELECT pharmacy_id FROM medicine_stock WHERE medicine_id = ${medicine_id}) AND vertex_2 IN (SELECT pharmacy_id FROM medicine_stock WHERE medicine_id = ${medicine_id})`,(err,result) => {
+                    if(!result){
+                    }else{
+                        con.query(`SELECT pharmacy_id FROM medicine_stock WHERE medicine_id = ${medicine_id}`,(err,result1) => {
+                            if(err) res.send(err);
+                            else{
+                                if(!result){
+                                }else{
+                                    pharmacy_id = result1;
+                                    console.log(result1);
+                                    vertex_matrix = Array(pharmacy_id.length).fill(null).map(() => Array(pharmacy_id.length).fill(0));
+                                    for(var i=0;i<result.length;i++){
+                                        vertex_matrix[result1.findIndex(item => item.pharmacy_id === result[i].vertex_1)][result1.findIndex(item => item.pharmacy_id === result[i].vertex_2)] = result[i].weight;
+                                        vertex_matrix[result1.findIndex(item => item.pharmacy_id === result[i].vertex_2)][result1.findIndex(item => item.pharmacy_id === result[i].vertex_1)] = result[i].weight;
+                                    }
+                                    solver.solveTsp(vertex_matrix,true,{}).then(
+                                        function(result2){
+                                            for(var i=0;i<result2.length;i++){
+                                                console.log(result1[result2[i]].pharmacy_id);
+                                            }
+                                            console.log(result2);
+                                            res.send(result2);
+                                        }
+                                    )
+                                }
+                            }
+                        })
+                        console.log(result);
+                        // var spanningTree = MST.kruskal(result);
+                        // res.send(spanningTree);
+                        // con.query(`SELECT pharmacy_id, lat, lon, SQRT(
+                        //         POW(69.1 * (lat - ${lat}), 2) +
+                        //         POW(69.1 * (${lon} - lon) * COS(lat / 57.3), 2)) AS distance
+                        //         FROM pharmacy WHERE pharmacy_id IN (SELECT pharmacy_id FROM medicine_stock WHERE medicine_id = ${medicine_id})  ORDER BY distance LIMIT 1;`,(err,result1) => {
+                        //             if(err) res.send(err);
+                        //             else{
+                        //                 pharmacy_id = result1[0].pharmacy_id;
+
+                        //                 console.log();
+                        //             }
+                        // });
+                    }
+                })
             }
-        ];
-        const spanningTree = MST.kruskal(edges);
-        res.send(spanningTree);
-
-        // connection.getConnection((err,con) => {
-        //     if(err) res.send(err);
-        //     else{
-        //         con.query(`SELECT * FROM pharmacy_graph WHERE vertex_1 IN (SELECT pharmacy_id FROM medicine_stock WHERE medicine_id = ${medicine_id}) AND vertex_2 IN (SELECT pharmacy_id FROM medicine_stock WHERE medicine_id = ${medicine_id})`,(err,result) => {
-        //             if(!result){
-
-        //             }else{
-        //                 res.send(result);
-        //             }
-        //         })
-        //     }
-        // })
+        })
     });
 
 module.exports=medicineRouter;
