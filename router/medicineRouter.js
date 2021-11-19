@@ -2,6 +2,8 @@ const express = require('express');
 const connection = require('../database/connection');
 const bodyParser = require('body-parser');
 const auth = require('../middleware/auth');
+const MST = require('../MST/kruskal');
+
 require('dotenv').config();
 
 const medicineRouter = express.Router();
@@ -132,6 +134,58 @@ medicineRouter.route('/list')
                 })
             }
         })
+    });
+
+medicineRouter.route('/find')
+    .post((req,res) => {
+        medicine_id = req.body.medicine_id;
+        edges = [
+            {
+                "vertex_1": 3,
+                "vertex_2": 1,
+                "weight": 67.55998749033873
+            },
+            {
+                "vertex_1": 4,
+                "vertex_2": 1,
+                "weight": 138.2
+            },
+            {
+                "vertex_1": 4,
+                "vertex_2": 3,
+                "weight": 153.82974975502862
+            },
+            {
+                "vertex_1": 5,
+                "vertex_2": 4,
+                "weight": 59.88701984392363
+            },
+            {
+                "vertex_1": 5,
+                "vertex_2": 1,
+                "weight": 196.80605216412744
+            },
+            {
+                "vertex_1": 5,
+                "vertex_2": 3,
+                "weight": 212.8503909284398
+            }
+        ];
+        const spanningTree = MST.kruskal(edges);
+        res.send(spanningTree);
+
+        // connection.getConnection((err,con) => {
+        //     if(err) res.send(err);
+        //     else{
+        //         con.query(`SELECT * FROM pharmacy_graph WHERE vertex_1 IN (SELECT pharmacy_id FROM medicine_stock WHERE medicine_id = ${medicine_id}) AND vertex_2 IN (SELECT pharmacy_id FROM medicine_stock WHERE medicine_id = ${medicine_id})`,(err,result) => {
+        //             if(!result){
+
+        //             }else{
+        //                 res.send(result);
+        //             }
+        //         })
+        //     }
+        // })
     });
 
 module.exports=medicineRouter;
