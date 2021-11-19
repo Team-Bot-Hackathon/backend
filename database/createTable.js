@@ -52,7 +52,7 @@ module.exports = () => {
             con.query(`CREATE TABLE IF NOT EXISTS pharmacy_graph(
                 vertex_1 INT NOT NULL,
                 vertex_2 INT NOT NULL,
-                weight INT NOT NULL,
+                weight DOUBLE NOT NULL,
                 FOREIGN KEY (vertex_1) REFERENCES pharmacy(pharmacy_id),
                 FOREIGN KEY (vertex_1) REFERENCES pharmacy(pharmacy_id)
               );`, function(err,result) {

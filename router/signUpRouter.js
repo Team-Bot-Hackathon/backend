@@ -75,11 +75,40 @@ signUpRouter.route('/pharmacy')
                                     jwt.sign({pharmacy_id: pharmacy_id}, process.env.KEY,{expiresIn: '1d'},(err,token) => {
                                         if(err) res.send(err)
                                         else{
-                                            res.send({
-                                                "signedUp": true,
-                                                "type": "pharmacy",
-                                                "token": token
-                                            });
+                                            // res.send({
+                                            //     "signedUp": true,
+                                            //     "type": "pharmacy",
+                                            //     "token": token
+                                            // });
+                                            con.query(`SELECT pharmacy_id, lat, lon, SQRT(
+                                                       POW(69.1 * (lat - ${lat}), 2) +
+                                                       POW(69.1 * (${lon} - lon) * COS(lat / 57.3), 2)) AS distance
+                                                       FROM pharmacy WHERE pharmacy_id != ${pharmacy_id} ORDER BY distance;`,(err,result) => {
+                                                           if(err) res.send(err);
+                                                           else{
+                                                               if(result){
+                                                                    for(var i=0;i<result.length;i++){
+                                                                        target_pharmacy_id = result[i].pharmacy_id;
+                                                                        weight = result[i].distance;
+                                                                        con.query(`INSERT INTO pharmacy_graph(\`vertex_1\`,\`vertex_2\`,\`weight\`) VALUES (${pharmacy_id},${target_pharmacy_id},${weight})`,(err,result) => {
+                                                                            if(err) res.send(err);
+                                                                        })
+                                                                    }
+                                                                    res.send({
+                                                                        "signedUp": true,
+                                                                        "type": "pharmacy",
+                                                                        "token": token
+                                                                    });
+                                                               }else{
+                                                                    console.log(result);
+                                                                    res.send({
+                                                                        "signedUp": true,
+                                                                        "type": "pharmacy",
+                                                                        "token": token
+                                                                    });
+                                                               }
+                                                           }
+                                                       })
                                             con.release();
                                         }
                                     })
