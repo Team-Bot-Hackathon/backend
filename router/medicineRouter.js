@@ -146,18 +146,31 @@ medicineRouter.route('/find')
         connection.getConnection((err,con) => {
             if(err) res.send(err);
             else{
-                con.query(`SELECT * FROM pharmacy_graph WHERE vertex_1 IN (SELECT pharmacy_id FROM medicine_stock WHERE medicine_id = ${medicine_id}) AND vertex_2 IN (SELECT pharmacy_id FROM medicine_stock WHERE medicine_id = ${medicine_id})`,(err,graph_edge_result) => {
+                con.query(`SELECT vertex_1,vertex_2, weight FROM pharmacy_graph x INNER JOIN (SELECT pharmacy.pharmacy_id, SQRT(
+                    POW(69.1 * (lat - ${lat}), 2) +
+                    POW(69.1 * (${lon} - lon) * COS(lat / 57.3), 2)) AS distance
+                    FROM pharmacy) y1
+                    ON x.vertex_1 = y1.pharmacy_id
+                    INNER JOIN (SELECT pharmacy.pharmacy_id, SQRT(
+                    POW(69.1 * (lat - ${lat}), 2) +
+                    POW(69.1 * (${lon} - lon) * COS(lat / 57.3), 2)) AS distance
+                    FROM pharmacy) y2
+                    ON x.vertex_2 = y2.pharmacy_id
+                    WHERE y1.distance < 100 AND y2.distance < 100 AND vertex_1 IN (SELECT pharmacy_id FROM medicine_stock WHERE medicine_id = ${medicine_id}) AND vertex_2 IN (SELECT pharmacy_id FROM medicine_stock WHERE medicine_id = ${medicine_id});`,(err,graph_edge_result) => {
                     if(!graph_edge_result){
                     }else{
                         con.query(`SELECT pharmacy.pharmacy_id, lat, lon,medicine_id, SQRT(
                             POW(69.1 * (lat - ${lat}), 2) +
                             POW(69.1 * (${lon} - lon) * COS(lat / 57.3), 2)) AS distance
-                            FROM pharmacy INNER JOIN medicine_stock ON medicine_stock.pharmacy_id=pharmacy.pharmacy_id WHERE pharmacy.pharmacy_id IN (SELECT pharmacy_id FROM medicine_stock WHERE medicine_id = 6) AND medicine_id = ${medicine_id} ORDER BY distance LIMIT 1;`,(err,closest_pharmacy_data) => {
+                            FROM pharmacy INNER JOIN medicine_stock ON medicine_stock.pharmacy_id=pharmacy.pharmacy_id WHERE pharmacy.pharmacy_id IN (SELECT pharmacy_id FROM medicine_stock WHERE medicine_id =  ${medicine_id} ) AND medicine_id = ${medicine_id} ORDER BY distance LIMIT 1;`,(err,closest_pharmacy_data) => {
                             if(err) res.send(err);
                             else{
                                 closest_pharmacy = closest_pharmacy_data[0].pharmacy_id;
                                 console.log(closest_pharmacy);
-                                con.query(`SELECT pharmacy_id FROM medicine_stock WHERE medicine_id = ${medicine_id}`,(err,pharmacy_shop_id_result) => {
+                                con.query( `SELECT x.pharmacy_id FROM medicine_stock x INNER JOIN (SELECT pharmacy.pharmacy_id, SQRT(
+                                    POW(69.1 * (lat - ${lat}), 2) +
+                                     POW(69.1 * (${lon} - lon) * COS(lat / 57.3), 2)) AS distance FROM pharmacy) y
+                                     ON x.pharmacy_id = y.pharmacy_id WHERE y.distance < 100 AND medicine_id = ${medicine_id};`,(err,pharmacy_shop_id_result) => {
                                     if(err) res.send(err);
                                     else{
                                         if(!graph_edge_result){
@@ -169,8 +182,8 @@ medicineRouter.route('/find')
                                                 pharmacy_shop_id_result[0] = pharmacy_shop_id_result[required_index];
                                                 pharmacy_shop_id_result[required_index] = value_at_0_index;
                                             }
-                                            console.log(pharmacy_shop_id_result);
                                             vertex_matrix = Array(pharmacy_shop_id_result.length).fill(null).map(() => Array(pharmacy_shop_id_result.length).fill(0));
+                                            console.log(pharmacy_shop_id_result,vertex_matrix,graph_edge_result);
                                             for(var i=0;i<graph_edge_result.length;i++){
                                                 vertex_matrix[pharmacy_shop_id_result.findIndex(item => item.pharmacy_id === graph_edge_result[i].vertex_1)][pharmacy_shop_id_result.findIndex(item => item.pharmacy_id === graph_edge_result[i].vertex_2)] = graph_edge_result[i].weight;
                                                 vertex_matrix[pharmacy_shop_id_result.findIndex(item => item.pharmacy_id === graph_edge_result[i].vertex_2)][pharmacy_shop_id_result.findIndex(item => item.pharmacy_id === graph_edge_result[i].vertex_1)] = graph_edge_result[i].weight;

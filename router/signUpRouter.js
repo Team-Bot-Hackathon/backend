@@ -29,8 +29,16 @@ function getData(lat1,lon1,lat2,lon2){
         };
         request(options,function(err,response) 
         {
-            data = JSON.parse(response.body);
-            resolve(data.route.distance);
+            console.log(options);
+            try{
+                data = JSON.parse(response.body);
+                if(data.route.routeError.errorCode == 201){
+                    resolve(false)
+                }
+                resolve(data.route.distance);
+            }catch(err){
+                resolve(false);
+            }
         });
     })
 }
@@ -111,11 +119,18 @@ signUpRouter.route('/pharmacy')
                                                     var distanceLocation = [];
                                                     for(var i=0;i<pharmacy_data.length;i++){
                                                         result = await getData(lat,lon,pharmacy_data[i].lat,pharmacy_data[i].lon);
-                                                        distanceLocation.push(result);
+                                                        if(result){
+                                                            distanceLocation.push(result);
+                                                        }else{
+                                                            distanceLocation.push(-1);
+                                                        }
                                                     }
                                                     for(var i=0;i<pharmacy_data.length;i++){
                                                         target_pharmacy_id = pharmacy_data[i].pharmacy_id;
                                                         weight = distanceLocation[i];
+                                                        if(weight == -1){
+                                                            continue;
+                                                        }
                                                         con.query(`INSERT INTO pharmacy_graph(\`vertex_1\`,\`vertex_2\`,\`weight\`) VALUES (${pharmacy_id},${target_pharmacy_id},${weight})`,(err,result) => {
                                                             if(err){
                                                                 res.send(err);
