@@ -8,6 +8,8 @@ require('dotenv').config();
 const getDistanceRouter = express.Router();
 getDistanceRouter.use(bodyParser.json());
 
+
+//Function to send the striaght line distance between the 2 coordinates
 function calculateDistance(lat1, lon1, lat2, lon2) 
     {
     var R = 6371; 
@@ -31,7 +33,7 @@ function toRad(Value)
 
 getDistanceRouter.route("/")
     .post((req,res) => {
-        try{
+        try{ 
             lat1 = +(req.body.lat1);
             lat2 = +(req.body.lat2);
             lon1 = +(req.body.lon1);
@@ -64,6 +66,7 @@ getDistanceRouter.route("/")
                 })
             };
 
+            //If the distance between the 2 coordinates is greater than 100km, then we take the straight line distance between the 2 coordinate
             if(calculateDistance(lat1,lon1,lat2,lon2) > 100){
                 payload = {
                     route:{
@@ -73,10 +76,14 @@ getDistanceRouter.route("/")
                 body= payload;
                 res.send(body);
             }else{
+
+                //Send the request to the API to get the actual distance between the 2 points
                 request(options, function (error, response) {
                     if (error) res.send(error);
                     else{
                         body = JSON.parse(response.body);
+
+                        //If the API fails to get the data then we send the striaght line distance between the 2 coordinates
                         if(body['fault']){
                             payload = {
                                 route:{
@@ -87,9 +94,13 @@ getDistanceRouter.route("/")
                             res.send(body);
                             
                         }
+                        
+                        //If no error than send the response of the API to the user
                         else if(body['route']['routeError']['errorCode'] == -400){
                             res.send(body);
                         }else{
+
+                            //If unknow error occurs than send the striaght line distance between the 2 coordinates
                             payload = {
                                 route:{
                                     distance: calculateDistance(lat1,lon1,lat2,lon2)
