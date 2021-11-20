@@ -8,6 +8,26 @@ require('dotenv').config();
 const getDistanceRouter = express.Router();
 getDistanceRouter.use(bodyParser.json());
 
+function calculateDistance(lat1, lon1, lat2, lon2) 
+    {
+    var R = 6371; 
+    var dLat = toRad(lat2-lat1);
+    var dLon = toRad(lon2-lon1);
+    var lat1 = toRad(lat1);
+    var lat2 = toRad(lat2);
+
+    var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.sin(dLon/2) * Math.sin(dLon/2) * Math.cos(lat1) * Math.cos(lat2); 
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+    var d = R * c;
+    return d;
+}
+
+
+function toRad(Value) 
+{
+    return Value * Math.PI / 180;
+}
 
 getDistanceRouter.route("/")
     .post((req,res) => {
@@ -43,13 +63,43 @@ getDistanceRouter.route("/")
             })
         };
 
-        request(options, function (error, response) {
-            if (error) res.send(error);
-            else{
-                body = JSON.parse(response.body);
-                res.send(body);
+        if(calculateDistance(lat1,lon1,lat2,lon2) > 100){
+            payload = {
+                route:{
+                    distance: calculateDistance(lat1,lon1,lat2,lon2)
+                }
             }
-        });
+            body= payload;
+            res.send(body);
+        }else{
+            request(options, function (error, response) {
+                if (error) res.send(error);
+                else{
+                    body = JSON.parse(response.body);
+                    if(body['fault']){
+                        payload = {
+                            route:{
+                                distance: calculateDistance(lat1,lon1,lat2,lon2)
+                            }
+                        }
+                        body= payload;
+                        res.send(body);
+                        
+                    }
+                    else if(body['route']['routeError']['errorCode'] == -400){
+                        res.send(body);
+                    }else{
+                        payload = {
+                            route:{
+                                distance: calculateDistance(lat1,lon1,lat2,lon2)
+                            }
+                        }
+                        body=payload;
+                        res.send(body);
+                    }
+                }
+            });
+        }
 
     });
 

@@ -25,16 +25,12 @@ function getData(lat1,lon1,lat2,lon2){
               "lat2":lat2,
               "lon2":lon2
             })
-          
         };
         request(options,function(err,response) 
         {
             console.log(options);
             try{
                 data = JSON.parse(response.body);
-                if(data.route.routeError.errorCode == 201){
-                    resolve(false)
-                }
                 resolve(data.route.distance);
             }catch(err){
                 resolve(false);
@@ -125,7 +121,9 @@ signUpRouter.route('/pharmacy')
                                                             distanceLocation.push(-1);
                                                         }
                                                     }
+                                                    console.log("Got All Distance",distanceLocation);
                                                     for(var i=0;i<pharmacy_data.length;i++){
+                                                        console.log(pharmacy_data[i]);
                                                         target_pharmacy_id = pharmacy_data[i].pharmacy_id;
                                                         weight = distanceLocation[i];
                                                         if(weight == -1){
@@ -137,6 +135,7 @@ signUpRouter.route('/pharmacy')
                                                                 console.log(err);
                                                             }
                                                         })
+                                                        console.log("Added Edges to the pharmacy graph table");
                                                     }
                                                 }
                                             })
