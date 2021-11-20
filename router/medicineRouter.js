@@ -160,7 +160,7 @@ medicineRouter.route('/update')
                                 }else{
                                     res.send({
                                         "action": false,
-                                        "err": "Medicine Stock Not Presnet in pharmacy shop"
+                                        "err": "Medicine Stock Not present in pharmacy shop"
                                     })
                                 }
                             }
@@ -222,8 +222,25 @@ medicineRouter.route('/find')
                     WHERE y1.distance < 100 AND y2.distance < 100 AND vertex_1 IN (SELECT pharmacy_id FROM medicine_stock WHERE medicine_id = ${medicine_id}) AND vertex_2 IN (SELECT pharmacy_id FROM medicine_stock WHERE medicine_id = ${medicine_id});`,(err,graph_edge_result) => {
                     if(graph_edge_result.length == 0){
 
-                        //If no edge present that means no pharmacy shop has the medicine which is close to it
-                        res.send({"action":false,"message":"No pharmacy Has the medicine which is close to the user"})
+                        //Check if one pharamcy shop has the medicine
+                        con.query(`SELECT pharmacy.name,pharmacy.pharmacy_id,medicine_stock.quantity,medicine_stock.medicine_id,pharmacy.address,pharmacy.lat,pharmacy.lon,pharmacy.contact_no FROM medicine_stock INNER JOIN pharmacy ON medicine_stock.pharmacy_id = pharmacy.pharmacy_id WHERE medicine_stock.medicine_id=8 `,(err,result) => {
+                            if(err) res.send(err);
+                            else{
+                                if(result.length==0){
+                                    //If no edge present that means no pharmacy shop has the medicine which is close to it
+                                    res.send({"action":false,"message":"No pharmacy Has the medicine which is close to the user"});
+                                }else{
+
+                                    //If the pharamcy exists then send its data
+                                    var payload = {
+                                        shop: result[0],
+                                        graph: {},
+                                        path: [result[0].pharmacy_id],
+                                    }
+                                    res.send(payload);
+                                }
+                            }
+                        })
                     }else{
 
                         //Select the closest pharmacy shop to the user which has the required medicine
