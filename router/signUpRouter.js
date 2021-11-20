@@ -108,11 +108,11 @@ signUpRouter.route('/pharmacy')
                                     jwt.sign({pharmacy_id: pharmacy_id}, process.env.KEY,{expiresIn: '1d'},(err,token) => {
                                         if(err) res.send(err)
                                         else{
-                                            // res.send({
-                                            //     "signedUp": true,
-                                            //     "type": "pharmacy",
-                                            //     "token": token
-                                            // });
+                                            res.send({
+                                                "signedUp": true,
+                                                "type": "pharmacy",
+                                                "token": token
+                                            });
                                             con.query(`SELECT pharmacy_id,lat,lon FROM pharmacy WHERE pharmacy_id != ${pharmacy_id}`,async(err,pharmacy_data) => {
                                                 if(err) res.send(err);
                                                 else{
@@ -138,11 +138,6 @@ signUpRouter.route('/pharmacy')
                                                             }
                                                         })
                                                     }
-                                                    res.send({
-                                                        "signedUp": true,
-                                                        "type": "pharmacy",
-                                                        "token": token
-                                                    });
                                                 }
                                             })
                                             // con.query(`SELECT pharmacy_id, lat, lon, SQRT(

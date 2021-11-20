@@ -157,7 +157,8 @@ medicineRouter.route('/find')
                     FROM pharmacy) y2
                     ON x.vertex_2 = y2.pharmacy_id
                     WHERE y1.distance < 100 AND y2.distance < 100 AND vertex_1 IN (SELECT pharmacy_id FROM medicine_stock WHERE medicine_id = ${medicine_id}) AND vertex_2 IN (SELECT pharmacy_id FROM medicine_stock WHERE medicine_id = ${medicine_id});`,(err,graph_edge_result) => {
-                    if(!graph_edge_result){
+                    if(graph_edge_result.length == 0){
+                        res.send({"action":false,"message":"No pharmacy Has the medicine"})
                     }else{
                         con.query(`SELECT pharmacy.pharmacy_id, lat, lon,medicine_id, SQRT(
                             POW(69.1 * (lat - ${lat}), 2) +
