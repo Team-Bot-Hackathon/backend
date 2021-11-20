@@ -202,9 +202,10 @@ medicineRouter.route('/find')
                                                         }
                                                     }
                                                     con.query(`SELECT medicine_stock.medicine_id,medicine_stock.pharmacy_id,quantity,medicine.name,pharmacy.name, pharmacy.address,contact_no,lat,lon FROM medicine_stock 
-                                                               INNER JOIN medicine ON medicine_stock.medicine_id = medicine.medicine_id 
-                                                               INNER JOIN pharmacy ON medicine_stock.pharmacy_id = pharmacy.pharmacy_id 
-                                                               WHERE medicine_stock.medicine_id=${medicine_id};`,(err,pharmacy_shop_with_medicine) => {
+                                                    INNER JOIN medicine ON medicine_stock.medicine_id = medicine.medicine_id 
+                                                    INNER JOIN pharmacy ON medicine_stock.pharmacy_id = pharmacy.pharmacy_id 
+                                                    INNER JOIN (SELECT pharmacy.pharmacy_id, SQRT(POW(69.1 * (lat - ${lat}), 2) +  POW(69.1 * (${lon} - lon) * COS(lat / 57.3), 2)) AS distance FROM pharmacy) y ON medicine_stock.pharmacy_id = y.pharmacy_id 
+                                                    WHERE medicine_stock.medicine_id=${medicine_id} AND y.distance < 100;`,(err,pharmacy_shop_with_medicine) => {
                                                                    if(err) res.send(err);
                                                                    else{
                                                                        var payload = {
