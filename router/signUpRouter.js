@@ -15,7 +15,7 @@ function getData(lat1,lon1,lat2,lon2){
     return new Promise(function(resolve,reject){
         var options = {
             'method': 'POST',
-            'url': 'http://localhost:3000/getDistance',
+            'url': 'http://localhost:'+process.env.PORT+'/getDistance',
             'headers': {
               'Content-Type': 'application/json'
             },
