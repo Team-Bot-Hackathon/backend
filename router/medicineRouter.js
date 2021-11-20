@@ -223,7 +223,7 @@ medicineRouter.route('/find')
                     if(graph_edge_result.length == 0){
 
                         //Check if one pharamcy shop has the medicine
-                        con.query(`SELECT pharmacy.name,pharmacy.pharmacy_id,medicine_stock.quantity,medicine_stock.medicine_id,pharmacy.address,pharmacy.lat,pharmacy.lon,pharmacy.contact_no FROM medicine_stock INNER JOIN pharmacy ON medicine_stock.pharmacy_id = pharmacy.pharmacy_id WHERE medicine_stock.medicine_id=8 `,(err,result) => {
+                        con.query(`SELECT pharmacy.name,pharmacy.pharmacy_id,medicine_stock.quantity,medicine_stock.medicine_id,pharmacy.address,pharmacy.lat,pharmacy.lon,pharmacy.contact_no FROM medicine_stock INNER JOIN pharmacy ON medicine_stock.pharmacy_id = pharmacy.pharmacy_id WHERE medicine_stock.medicine_id=${medicine_id} `,(err,result) => {
                             if(err) res.send(err);
                             else{
                                 if(result.length==0){
