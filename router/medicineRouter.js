@@ -233,7 +233,7 @@ medicineRouter.route('/find')
 
                                     //If the pharamcy exists then send its data
                                     var payload = {
-                                        shop: result[0],
+                                        shop: [result[0]],
                                         graph: {},
                                         path: [result[0].pharmacy_id],
                                     }
