@@ -63,6 +63,7 @@ signInRouter.route("/user")
                 })
             }
         }catch(err){
+            console.log(err);
             res.send(err);
         }
     });
@@ -117,6 +118,7 @@ signInRouter.route('/pharmacy')
             })
         }
     }catch(err){
+        console.log(err);
         res.send(err);
     }
 });
